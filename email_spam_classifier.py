@@ -3,16 +3,15 @@ Email Spam Classifier (TF-IDF + MultinomialNB)
 
 This script:
 	•	Loads data/spam_ham_dataset.csv with columns: text, label_num.
-	•	Cleans email text (remove HTML, normalize whitespace).
-	•	Builds a scikit-learn Pipeline: cleaner → TfidfVectorizer → MultinomialNB.
-	•	Runs 3-fold Stratified cross-validation with metrics:
-accuracy, precision, recall, F1.
-	•	Saves a metrics report to reports/email_spam_multinomial.txt.
-	•	Optionally prints a small sample of emails with TRUE vs PRED labels.
+	•	Cleans email text (remove HTML, normalize spaces) inside a Pipeline.
+	•	Builds scikit-learn Pipeline: cleaner → TfidfVectorizer (1–2 n-grams, 20k feats, sublinear TF) → MultinomialNB.
+	•	Runs 3-fold Stratified cross-validation with metrics: accuracy, precision, recall, F1.
+	•	Saves metrics to reports/email_spam_multinomial.txt.
+	•	Optionally prints a small random sample with TRUE vs PRED labels.
+	•	Saves the trained pipeline to models/email_classifier_multinomial_model.joblib.
 
 Notes:
-	•	Label convention assumed: 1 = SPAM, 0 = HAM (adjust if needed).
-	•	Vectorizer: 20k features, 1–2-grams, English stopwords, sublinear TF.
+	•	Label convention assumed: 1 = SPAM, 0 = HAM (update if different).
 
 Usage:
 python spam_classifier.py
@@ -23,6 +22,8 @@ python spam_classifier.py
 import re
 #Import OS
 import os
+#Import joblib
+from joblib import dump
 #Import Pandas
 import pandas as pd
 #Import pipeline
@@ -116,3 +117,8 @@ if SAMPLE_EMAIL:
         TRUE = "SPAM" if true_label == 1 else "HAM"
         PRED = "SPAM" if predicted_label == 1 else "HAM"
         print(f"TRUE: {TRUE:<4} | PRED: {PRED:<4} -> {email_text[:80]}...")
+
+
+os.makedirs("models", exist_ok=True)
+PIPELINE_PATH = "models/email_classifer_multinomial_model.joblib"
+dump(email_pipeline, PIPELINE_PATH)
